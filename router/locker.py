@@ -70,7 +70,6 @@ def create_reservation_locker(reservation: Reservation):
         reservation.fee = 0
     else:
         reservation.fee = (reservation.time_select - 2) * 5
-    reservation.end_time = None
     
     db["reservation_locker"].insert_one(reservation.dict())
     
