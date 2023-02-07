@@ -28,7 +28,16 @@ router = APIRouter(prefix="/locker",
 
 @router.get("/")
 def root():
-    return {"msg": "201"}
+    all_locker = db['locker']
+    locker_status = {}
+    check = ""
+    for locker in list(all_locker.find({}, {"_id": False})):
+        if locker['available']:
+            check = "available"
+        else:
+            check = "unavailable"
+        locker_status[locker['locker_id']] = check
+    return {"locker": locker_status}
 
 def days_hours_minutes(td):
     return td.days, td.seconds//3600, (td.seconds//60)%60
