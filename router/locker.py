@@ -127,11 +127,12 @@ def delete_reservation_locker(user_id: str, money: float):
 
         time_exceed = real_time_used - time_user
         if (time_exceed <= timedelta(0)):
+            if (fee > money):
+                raise HTTPException(status_code=400, detail="Not enough money")
+
             resp = reserve_collection.delete_one({"user_id": user_id})
             resp = locker_collection.update_one({'locker_id': locker_id}, {"$set": {"available": True}})
 
-            if (fee > money):
-                raise HTTPException(status_code=400, detail="Not enough money")
             else:
                 return {'items': items, 'change_back': money}
 
