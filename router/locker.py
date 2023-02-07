@@ -102,9 +102,8 @@ def create_reservation_locker(reservation: Reservation):
             }
         }
     )
-    
+
     return {"msg": "Create Success"}
-    
 
 
 @router.delete("/{user_id}/{money}")
@@ -131,7 +130,7 @@ def delete_reservation_locker(user_id: str, money: float):
             resp = reserve_collection.delete_one({"user_id": user_id})
             resp = locker_collection.update_one({'locker_id': locker_id}, {"$set": {"available": True}})
 
-            return {'items': items}
+            return {'items': items, 'change_back': money}
 
         else:
             hour_exceed, minute_exceed, second_exceed = days_hours_minutes(time_exceed)
@@ -151,5 +150,6 @@ def delete_reservation_locker(user_id: str, money: float):
                 resp = reserve_collection.delete_one({"user_id": user_id})
                 resp = locker_collection.update_one({'locker_id': locker_id}, {"$set": {"available": True}})
 
-                return {'items': items}
+                change = f"{(money-total_fee):.3f}"
+                return {'items': items, 'change_back': change}
 
