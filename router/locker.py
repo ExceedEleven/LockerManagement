@@ -12,7 +12,7 @@ class Reservation(BaseModel):
     time_select: int
     time_start: datetime
     fee: float
-    end_time: datetime
+    end_time: datetime = None
 
 
 class Locker(BaseModel):
