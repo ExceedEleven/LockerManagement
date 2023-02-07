@@ -34,8 +34,16 @@ def days_hours_minutes(td):
 
 @router.get("/{locker_id}")
 def check_available_locker(locker_id: int):
-    pass
-
+    locker = db['locker']
+    check_locker = list(locker.find({'locker_id': locker_id}, {"_id": False}))
+    if check_locker[0]['available']:
+        return {"msg": "This locker is available"}
+    else:
+        user = db['reservation_locker']
+        reservation = list(user.find({'locker_id': locker_id}, {"_id": False}))
+        end =  reservation[0]['time_start'] + timedelta(hours=reservation[0]['time_select'])
+        return {"msg": "This locker had reservation",
+                "end_time": f"{end-datetime.now()} left"}
 
 @router.post("/create")
 def create_reservation_locker(reservation: Reservation):
