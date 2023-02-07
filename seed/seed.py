@@ -14,32 +14,32 @@ db = client['exceed11']
 
 SEED_DATA = [
     {
-        "id": 0,
+        "locker_id": 0,
         "available": True,
         "reservation_id": None
     },
     {
-        "id": 1,
+        "locker_id": 1,
         "available": True,
         "reservation_id": None
     },
     {
-        "id": 2,
+        "locker_id": 2,
         "available": True,
         "reservation_id": None
     },
     {
-        "id": 3,
+        "locker_id": 3,
         "available": True,
         "reservation_id": None
     },
     {
-        "id": 4,
+        "locker_id": 4,
         "available": True,
         "reservation_id": None
     },
     {
-        "id": 5,
+        "locker_id": 5,
         "available": True,
         "reservation_id": None
     },
