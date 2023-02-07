@@ -36,7 +36,7 @@ def check_available_locker(locker_id: int):
 
 
 @router.post("/create")
-def create_reservation_locker(user: Reservation):
+def create_reservation_locker(reservation: Reservation):
     pass
 
 
