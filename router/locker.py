@@ -1,11 +1,10 @@
 from datetime import datetime, timedelta
-from typing import Optional, Union, List
+from typing import List, Optional, Union
 
 from fastapi import APIRouter, Body, HTTPException
 from pydantic import BaseModel
 
 from config.database import db
-
 
 
 class Reservation(BaseModel):
@@ -111,6 +110,7 @@ def create_reservation_locker(reservation: Reservation):
 @router.delete("/{user_id}/{money}")
 def delete_reservation_locker(user_id: str, money: float):
     reserve_collection = db['reservation_locker']
+    locker_collection = db['locker']
     values = list(reserve_collection.find({"user_id": user_id}, {'_id': False}))
 
     if len(values) == 0:
@@ -119,6 +119,9 @@ def delete_reservation_locker(user_id: str, money: float):
         raise HTTPException(status_code=500, detail="Something went wrong (len > 1)")
     elif len(values) == 1:
         resp = values[0]
+        locker_id = values[0]['locker_id']
+        items = values[0]['backpack']
+
         fee = resp['fee']
         time_user = timedelta(hours=resp['time_select'])
         real_time_used = datetime.now() - resp['time_start']
@@ -126,8 +129,9 @@ def delete_reservation_locker(user_id: str, money: float):
         time_exceed = real_time_used - time_user
         if (time_exceed <= timedelta(0)):
             resp = reserve_collection.delete_one({"user_id": user_id})
+            resp = locker_collection.update_one({'locker_id': locker_id}, {"$set": {"available": True}})
 
-            return {'msg': "Delete Success!"}
+            return {'items': items}
 
         else:
             hour_exceed, minute_exceed, second_exceed = days_hours_minutes(time_exceed)
@@ -145,6 +149,7 @@ def delete_reservation_locker(user_id: str, money: float):
 
             else:
                 resp = reserve_collection.delete_one({"user_id": user_id})
+                resp = locker_collection.update_one({'locker_id': locker_id}, {"$set": {"available": True}})
 
-                return {'msg': "Delete Success!"}
+                return {'items': items}
 
