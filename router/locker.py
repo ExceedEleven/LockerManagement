@@ -58,6 +58,7 @@ def create_reservation_locker(reservation: Reservation):
         reservation.fee = 0
     else:
         reservation.fee = (reservation.time_select - 2) * 5
+    reservation.end_time = None
     
     db["reservation_locker"].insert_one({
         "user_id": reservation.user_id,
@@ -66,7 +67,7 @@ def create_reservation_locker(reservation: Reservation):
         "time_select": reservation.time_select,
         "time_start": reservation.time_start,
         "fee": reservation.fee,
-        "end_time": None
+        "end_time": reservation.end_time
     })
     
     reservation = db["reservation_locker"].find_one({
@@ -76,7 +77,7 @@ def create_reservation_locker(reservation: Reservation):
         "time_select": reservation.time_select,
         "time_start": reservation.time_start,
         "fee": reservation.fee,
-        "end_time": None
+        "end_time": reservation.end_time
     })
     
     db["locker"].update_one(
