@@ -13,8 +13,8 @@ class Reservation(BaseModel):
     locker_id: int
     backpack: List[str]
     time_select: int
-    time_start: datetime
-    fee: float
+    time_start: datetime = None
+    fee: float = 0
 
 class Locker(BaseModel):
     locker_id: int
@@ -87,7 +87,6 @@ def create_reservation_locker(reservation: Reservation):
         reservation.fee = 0
     else:
         reservation.fee = (reservation.time_select - 2) * 5
-    reservation.end_time = None
     
     db["reservation_locker"].insert_one(reservation.dict())
     
