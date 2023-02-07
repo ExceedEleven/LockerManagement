@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Optional, Union
+from typing import Optional, Union, List
 
 from fastapi import APIRouter, Body, HTTPException
 from pydantic import BaseModel
@@ -11,7 +11,7 @@ from config.database import db
 class Reservation(BaseModel):
     user_id: str
     locker_id: int
-    backpack: list[str]
+    backpack: List[str]
     time_select: int
     time_start: datetime
     fee: float
