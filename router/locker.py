@@ -133,8 +133,7 @@ def delete_reservation_locker(user_id: str, money: float):
             resp = reserve_collection.delete_one({"user_id": user_id})
             resp = locker_collection.update_one({'locker_id': locker_id}, {"$set": {"available": True}})
 
-            else:
-                return {'items': items, 'change_back': money}
+            return {'items': items, 'change_back': money}
 
         else:
             hour_exceed, minute_exceed, second_exceed = days_hours_minutes(time_exceed)
