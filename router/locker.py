@@ -36,14 +36,22 @@ def days_hours_minutes(td):
 def check_available_locker(locker_id: int):
     locker = db['locker']
     check_locker = list(locker.find({'locker_id': locker_id}, {"_id": False}))
+    if len(check_locker) == 0:
+        raise HTTPException(status_code=404, detail="Locker not found")
+    elif len(check_locker) > 1:
+        raise HTTPException(status_code=500, detail=f"Something went wrong (locker {locker_id} > 1)")
     if check_locker[0]['available']:
         return {"msg": "This locker is available"}
     else:
         user = db['reservation_locker']
         reservation = list(user.find({'locker_id': locker_id}, {"_id": False}))
-        end =  reservation[0]['time_start'] + timedelta(hours=reservation[0]['time_select'])
+        if len(reservation) == 0:
+            raise HTTPException(status_code=404, detail="Reservation not found")
+        elif len(reservation) > 1:
+            raise HTTPException(status_code=500, detail=f"Something went wrong (locker {locker_id} reservation > 1)")
+        end = reservation[0]['time_start'] + timedelta(hours=reservation[0]['time_select'])
         return {"msg": "This locker had reservation",
-                "end_time": f"{end-datetime.now()} left"}
+                "end_time": f"{end - datetime.now()} left"}
 
 @router.post("/create")
 def create_reservation_locker(reservation: Reservation):
