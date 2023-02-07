@@ -106,11 +106,11 @@ def create_reservation_locker(reservation: Reservation):
     return {"msg": "Create Success"}
 
 
-@router.delete("/{user_id}/{money}")
-def delete_reservation_locker(user_id: str, money: float):
+@router.delete("/{user_id}/{locker_id}/{money}")
+def delete_reservation_locker(user_id: str, locker_id: int, money: float):
     reserve_collection = db['reservation_locker']
     locker_collection = db['locker']
-    values = list(reserve_collection.find({"user_id": user_id}, {'_id': False}))
+    values = list(reserve_collection.find({"user_id": user_id, "locker_id": locker_id}, {'_id': False}))
 
     if len(values) == 0:
         raise HTTPException(status_code=404, detail="Reservation not found")
@@ -118,7 +118,6 @@ def delete_reservation_locker(user_id: str, money: float):
         raise HTTPException(status_code=500, detail="Something went wrong (len > 1)")
     elif len(values) == 1:
         resp = values[0]
-        locker_id = values[0]['locker_id']
         items = values[0]['backpack']
 
         fee = resp['fee']
@@ -130,7 +129,7 @@ def delete_reservation_locker(user_id: str, money: float):
             if (fee > money):
                 raise HTTPException(status_code=400, detail="Not enough money")
 
-            resp = reserve_collection.delete_one({"user_id": user_id})
+            resp = reserve_collection.delete_one({"user_id": user_id, "locker_id": locker_id})
             resp = locker_collection.update_one({'locker_id': locker_id}, {"$set": {"available": True}})
 
             change = f"{(money-fee):.3f}"
@@ -151,7 +150,7 @@ def delete_reservation_locker(user_id: str, money: float):
                 raise HTTPException(status_code=400, detail="Not enough money")
 
             else:
-                resp = reserve_collection.delete_one({"user_id": user_id})
+                resp = reserve_collection.delete_one({"user_id": user_id, "locker_id": locker_id})
                 resp = locker_collection.update_one({'locker_id': locker_id}, {"$set": {"available": True}})
 
                 change = f"{(money-total_fee):.3f}"
