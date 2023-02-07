@@ -41,7 +41,7 @@ def create_reservation_locker(reservation: Reservation):
     #validation reservation
     if reservation.user_id == "":
         raise HTTPException(status_code=400, detail="User id must not empty")
-    if any([True if i.isalpha else False for i in reservation.user_id]):
+    if sum([1 for i in reservation.user_id if i.isalpha()]) > 0:
         raise HTTPException(status_code=400, detail="Invalid user id")
     if reservation.locker_id not in range(0,6):
         raise HTTPException(status_code=400, detail="Locker id must be in range 0-5")
@@ -62,25 +62,9 @@ def create_reservation_locker(reservation: Reservation):
         reservation.fee = (reservation.time_select - 2) * 5
     reservation.end_time = None
     
-    db["reservation_locker"].insert_one({
-        "user_id": reservation.user_id,
-        "locker_id": reservation.locker_id,
-        "backpack": reservation.backpack,
-        "time_select": reservation.time_select,
-        "time_start": reservation.time_start,
-        "fee": reservation.fee,
-        "end_time": reservation.end_time
-    })
+    db["reservation_locker"].insert_one(reservation.dict())
     
-    reservation = db["reservation_locker"].find_one({
-        "user_id": reservation.user_id,
-        "locker_id": reservation.locker_id,
-        "backpack": reservation.backpack,
-        "time_select": reservation.time_select,
-        "time_start": reservation.time_start,
-        "fee": reservation.fee,
-        "end_time": reservation.end_time
-    })
+    reservation = db["reservation_locker"].find_one(reservation.dict())
     
     db["locker"].update_one(
         {
