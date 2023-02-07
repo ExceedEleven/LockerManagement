@@ -41,6 +41,8 @@ def create_reservation_locker(reservation: Reservation):
     #validation reservation
     if reservation.user_id == "":
         raise HTTPException(status_code=400, detail="User id must not empty")
+    if any([True if i.isalpha else False for i in reservation.user_id]):
+        raise HTTPException(status_code=400, detail="Invalid user id")
     if reservation.locker_id not in range(0,6):
         raise HTTPException(status_code=400, detail="Locker id must be in range 0-5")
     if reservation.backpack == []:
