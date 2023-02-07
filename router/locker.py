@@ -54,7 +54,6 @@ def create_reservation_locker(reservation: Reservation):
 def delete_reservation_locker(user_id: str, money: float):
     reserve_collection = db['reservation_locker']
     values = list(reserve_collection.find({"user_id": user_id}, {'_id': False}))
-    print(len(values))
 
     if len(values) == 0:
         raise HTTPException(status_code=404, detail="Reservation not found")
