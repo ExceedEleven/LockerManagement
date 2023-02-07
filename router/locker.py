@@ -1,8 +1,9 @@
 from datetime import datetime
-from fastapi import Body, APIRouter
+from fastapi import Body, APIRouter, HTTPException
 from typing import Union, Optional
 from pydantic import BaseModel
 from config.database import db
+
 
 
 class Reservation(BaseModel):
@@ -35,9 +36,63 @@ def check_available_locker(locker_id: int):
     pass
 
 
-@router.post("/create")
+@router.post("/create", status_code=200)
 def create_reservation_locker(reservation: Reservation):
-    pass
+    #validation reservation
+    if reservation.user_id == "":
+        raise HTTPException(status_code=400, detail="User id must not empty")
+    if reservation.locker_id not in range(0,6):
+        raise HTTPException(status_code=400, detail="Locker id must be in range 0-5")
+    if reservation.backpack == []:
+        raise HTTPException(status_code=400, detail="Backpack must not empty")
+    if reservation.time_select <= 0:
+        raise HTTPException(status_code=400, detail="Time select must be greater than 0")
+
+    #check available locker
+    locker = db["locker"].find_one({"locker_id": reservation.locker_id})
+    if locker is None or locker["available"] == False:
+        raise HTTPException(status_code=400, detail="Locker is not available")
+    
+    reservation.time_start = datetime.now()
+    if reservation.time_select <= 2:
+        reservation.fee = 0
+    else:
+        reservation.fee = (reservation.time_select - 2) * 5
+    
+    db["reservation_locker"].insert_one({
+        "user_id": reservation.user_id,
+        "locker_id": reservation.locker_id,
+        "backpack": reservation.backpack,
+        "time_select": reservation.time_select,
+        "time_start": reservation.time_start,
+        "fee": reservation.fee,
+        "end_time": None
+    })
+    
+    reservation = db["reservation_locker"].find_one({
+        "user_id": reservation.user_id,
+        "locker_id": reservation.locker_id,
+        "backpack": reservation.backpack,
+        "time_select": reservation.time_select,
+        "time_start": reservation.time_start,
+        "fee": reservation.fee,
+        "end_time": None
+    })
+    
+    db["locker"].update_one(
+        {
+            "locker_id": reservation["locker_id"]
+        },
+        {
+            "$set": {
+                "available": False,
+                "reservation_id": reservation["_id"],
+            }
+        }
+    )
+    
+    return {"msg": "Create Success"}
+    
 
 
 @router.delete("/{user_id}/{money}")
