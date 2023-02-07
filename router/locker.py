@@ -13,8 +13,8 @@ class Reservation(BaseModel):
     locker_id: int
     backpack: List[str]
     time_select: int
-    time_start: datetime
-    fee: float
+    time_start: datetime = None
+    fee: float = 0
 
 class Locker(BaseModel):
     locker_id: int
